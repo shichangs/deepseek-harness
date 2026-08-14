@@ -12,7 +12,7 @@ fork 与 spawn 的唯一区别是 child 的 Session 会以 parent 已完成轮�
 
 ## 决策
 
-所有随附组合都把 fork 委派工具绑定为 `backgroundMode: one-shot`：[base 组合包](../../../../packages/bundle/base/cordis.patch.yml)、[ACP 示例](../../../../examples/acp-agent/cordis.yml)与[headless 示例](../../../../examples/headless-agent/cordis.yml)。base 组合包保留 `run_in_background`，因为它挂载了 task 服务；两个示例设置 `enableRunInBackground: false`，因为它们都不挂载 task 服务，否则一次 one-shot 后台启动会在调用时因缺少 `tasks` 服务而失败。
+所有随附组合都把 fork 委派工具绑定为 `backgroundMode: one-shot`：[base 组合包](../../../../packages/bundle/base/cordis.patch.yml)、[ACP 示例](../../../../examples/acp-agent/cordis.yml)、[headless 示例](../../../../examples/headless-agent/cordis.yml)，以及三个 CLI agent preset（[standard](../../../../apps/cli/config/agent-presets/standard/agent.cordis.yml)、[code](../../../../apps/cli/config/agent-presets/code/agent.cordis.yml)、[cordis](../../../../apps/cli/config/agent-presets/cordis/agent.cordis.yml)）。base 组合包与这些 preset 保留 `run_in_background`，因为它们的组合挂载了 task 服务；两个示例设置 `enableRunInBackground: false`，因为它们都不挂载 task 服务，否则一次 one-shot 后台启动会在调用时因缺少 `tasks` 服务而失败。
 
 one-shot child——前台与后台皆然——经由 `SubagentRuntime.start()` 创建，该路径从不进入可继续的 activation setup 注册表，因此 `report` 与它的提示词 section 都不会被安装。于是一个 fork 出的 one-shot child 的系统提示词与工具 schema 与其 parent 相同，只差部署逐个委派工具主动选择的 `persona` 与 `toolFilter` 增量。
 
@@ -46,4 +46,4 @@ one-shot child——前台与后台皆然——经由 `SubagentRuntime.start()` 
 
 ### 已接受的风险
 
-该限制存在于三个配置文件与一处代码注释中，而不在门禁里。未来某个组合包行或 profile 补丁可以在 fork 工具上设置 `backgroundMode: continuable`，从而悄然重新引入前缀损失；没有任何东西会失败得很响亮。这就是不把某一份插件清单的后果写入 `tool-subagent` 所接受的代价。
+该限制存在于六个配置文件与一处代码注释中，而不在门禁里。未来某个组合包行或 profile 补丁可以在 fork 工具上设置 `backgroundMode: continuable`，从而悄然重新引入前缀损失；没有任何东西会失败得很响亮。这就是不把某一份插件清单的后果写入 `tool-subagent` 所接受的代价；[preset 对齐 Agent Note](../bug-fix/2026-08-15-agent-preset-fork-rows-one-shot.md) 记录了一次成真实例。
