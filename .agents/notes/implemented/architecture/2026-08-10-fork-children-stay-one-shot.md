@@ -12,7 +12,7 @@ The child-scoped `report` return channel is now the largest such addition, and s
 
 ## Decision
 
-Every shipped composition binds the fork delegation tool to `backgroundMode: one-shot`: [the base bundle](../../../../packages/bundle/base/cordis.patch.yml), [the ACP example](../../../../examples/acp-agent/cordis.yml), and [the headless example](../../../../examples/headless-agent/cordis.yml). The base bundle leaves `run_in_background` available, because it mounts a task service; the two examples set `enableRunInBackground: false`, because they mount none and a one-shot background start would otherwise fail at call time on a missing `tasks` service.
+Every shipped composition binds the fork delegation tool to `backgroundMode: one-shot`: [the base bundle](../../../../packages/bundle/base/cordis.patch.yml), [the ACP example](../../../../examples/acp-agent/cordis.yml), [the headless example](../../../../examples/headless-agent/cordis.yml), and the three CLI agent presets ([standard](../../../../apps/cli/config/agent-presets/standard/agent.cordis.yml), [code](../../../../apps/cli/config/agent-presets/code/agent.cordis.yml), [cordis](../../../../apps/cli/config/agent-presets/cordis/agent.cordis.yml)). The base bundle and the presets leave `run_in_background` available, because their compositions mount a task service; the two examples set `enableRunInBackground: false`, because they mount none and a one-shot background start would otherwise fail at call time on a missing `tasks` service.
 
 One-shot children — foreground and background alike — are created through `SubagentRuntime.start()`, which never enters the continuable activation-setup registry, so neither `report` nor its prompt section is installed. A forked one-shot child's system prompt and tool schemas therefore equal its parent's, apart from the `persona` and `toolFilter` deltas a deployment opts into per delegation tool.
 
@@ -46,4 +46,4 @@ The reintroduction condition is recorded as a `TODO(fork-continuable-prefix-reus
 
 ### Accepted risks
 
-The constraint lives in three configuration files and a code comment, not in a gate. A future bundle row or profile patch can set `backgroundMode: continuable` on a fork tool and silently reintroduce the prefix loss; nothing fails loud. That is the accepted cost of not encoding one roster's consequence into `tool-subagent`.
+The constraint lives in six configuration files and a code comment, not in a gate. A future bundle row or profile patch can set `backgroundMode: continuable` on a fork tool and silently reintroduce the prefix loss; nothing fails loud. That is the accepted cost of not encoding one roster's consequence into `tool-subagent`; [the preset realignment note](../bug-fix/2026-08-15-agent-preset-fork-rows-one-shot.md) records one realized instance.
