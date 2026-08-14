@@ -2,13 +2,15 @@
 
 English | [中文](README.zh.md)
 
-The self-referential Cordis toolset: five model-facing tools over the live runtime in the current DSH process. The registry, the vm sandbox, and the browser broadcast belong to [`@deepseek-ai/dsh-cordis-host-runner`](../cordis-host-runner/README.md) (`ctx.dynamic`), which this toolset injects — a composition with these tools but no runner never activates them. Design home — sandbox semantics, dynamic-package lifecycle and composition, standing decisions: [the toolset Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md).
+The self-referential Cordis toolset: seven model-facing tools over the live runtime in the current DSH process. The registry, the vm sandbox, and the browser broadcast belong to [`@deepseek-ai/dsh-cordis-host-runner`](../cordis-host-runner/README.md) (`ctx.dynamic`), which this toolset injects — a composition with these tools but no runner never activates them. Design home — sandbox semantics, dynamic-package lifecycle and composition, standing decisions: [the toolset Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md).
 
 ## What it does
 
-Two paired verbs, plus the read-only report.
+Two paired verbs, plus the read-only inspect tools.
 
-- `cordis_inspect` — read-only report over the current process: services, all live plugin fibers, registered tools, this session's dynamic packages, the reflection-backed `api` / `events` references, and the compile-time `client` slot surface a browser half can contribute UI into. An exact `name` with `what: "api"`, `what: "events"`, or `what: "client"` narrows the report and adds the full contract.
+- `cordis_inspect_list` — lists every Inspect Provider known to the host — local host providers plus the latest manifests synchronized from the client — each with its platform, purpose, read-only methods, and input/output schemas; its result supplies the exact provider and method names `cordis_inspect_query` requires.
+- `cordis_inspect_query` — runs one read-only query an Inspect Provider explicitly declares, addressed by the exact `platform`/`provider`/`method` from the list with `input` satisfying that method's schema. Host queries run locally; a client query waits for the first valid page response and stays pending until a page answers or the call is cancelled.
+- `cordis_inspect_self` — inspects the session's own dynamic plugins at increasing detail: no ids lists plugin summaries, `pluginId` alone adds version pointers, the latest run, and every package summary, and `pluginId` plus `packageId` returns that immutable package's host/client source and runtime diagnostics.
 - `cordis_define` — records a package (`name`, `purpose`, and a host half `code` and/or a browser half `client`) after syntax-checking both halves. Nothing runs; the user sees a card for it in the conversation with a start control. The minted `dyn-<n>` id rides the result value AND the durable presentation metadata, which is how that card addresses the run verbs on replay.
 - `cordis_run` — evaluates the host half in the sandbox and delivers the browser half to every open web page. Running an already-running package re-delivers the live version instead of failing, which is how a reloaded page gets it back.
 - `cordis_stop` — disposes the host half to quiescence and withdraws the browser half; the definition survives and can run again.
@@ -59,7 +61,7 @@ Namespace plugin: named exports `name` / `inject` / `apply`, no default export (
 
 #### What the model sees
 
-The conversation model sees the generated [`cordis_inspect`, `cordis_define`, `cordis_run`, `cordis_stop`, and `cordis_undefine` schemas](../../../docs/tool-catalog.md#deepseek-aidsh-tool-cordis) whenever this plugin is visible.
+The conversation model sees the generated [`cordis_inspect_list`, `cordis_inspect_query`, `cordis_inspect_self`, `cordis_define`, `cordis_run`, `cordis_stop`, and `cordis_undefine` schemas](../../../docs/tool-catalog.md#deepseek-aidsh-tool-cordis) whenever this plugin is visible.
 
 #### Token effect
 

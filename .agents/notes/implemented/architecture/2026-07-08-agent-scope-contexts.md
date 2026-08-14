@@ -23,11 +23,11 @@ For most contributors, the complete contract is four rules:
 | Question | Rule |
 |---|---|
 | Where do I register behavior for one agent? | Call the ordinary registration API through `agent.ctx` |
-| What does an operation for an agent see? | Deployment globals plus that agent's layer, using the owning service's merge rules |
-| Which scoped listeners run? | Unscoped listeners plus listeners registered for the operation's agent |
+| What does an operation for an agent see? | Deployment globals plus that agent's layer and any ancestor layers its key's bound parent chain adds, using the owning service's merge rules |
+| Which scoped listeners run? | Unscoped listeners plus listeners registered for the operation's agent or an ancestor on its bound parent chain |
 | How long does the layer exist? | Setup completes before publication; disposal keeps it until work reaches quiescence |
 
-The scope is flat. Resolution never walks parent or sibling scopes, and lifetime ownership does not imply registration inheritance.
+Resolution never walks sibling scopes, and lifetime ownership does not imply registration inheritance. Views inherit only down an explicitly bound key-level parent chain (`bindScopeParent`), nearest shadowing farthest — an agent preset's standing mount is such a parent over its agents ([per-preset standing mounts](2026-08-08-per-preset-standing-mounts.md)).
 
 ```mermaid
 flowchart LR

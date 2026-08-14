@@ -14,7 +14,7 @@ All calls are exclusive, so a model-ordered batch observes earlier mutations and
 
 All three canonical values match the compact JSON already rendered to Native callers: `{ goal: null }` or `{ goal: { id, revision, objective, phase, roundsStarted, maxGoalRounds, blockedReason? }, activation }`. Programmatic consumers therefore receive the same domain structure without parsing the rendered JSON.
 
-An autonomous goal round that successfully reports `complete` or `blocked` marks that tool execution with `concludeTurn()` so the physical turn stops after the step. Direct-human mutations never contribute this stop: the assistant may acknowledge the change and concurrent human steering remains available to the loop.
+An autonomous goal round that successfully reports `complete` or `blocked` defers one wrap-up context onto its own result: a `{ kind: 'plugin', plugin: 'tool-goal' }`-sourced user message carrying a `<goal_complete>`/`<goal_blocked>` instruction to write a grounded closing message and call no more tools, so the turn ends through the loop's ordinary no-tool-calls stop ([wrap-up decision](../../../.agents/notes/implemented/bug-fix/2026-08-02-goal-round-wrapup-message.md)). Direct-human mutations receive no wrap-up instruction: the assistant may acknowledge the change and concurrent human steering remains available to the loop.
 
 ## Authority
 
