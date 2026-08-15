@@ -2,13 +2,15 @@
 
 [English](README.md) | 中文
 
-自引用 Cordis 工具集：五个面向模型的工具，操作当前 DSH 进程中的实时运行时。注册表、vm 沙箱与浏览器广播属于 [`@deepseek-ai/dsh-cordis-host-runner`](../cordis-host-runner/README.md)（`ctx.dynamic`），本工具集注入它——只装这些工具而不装 runner 的组合永远不会激活它们。沙箱语义、动态包生命周期与组合及既定决策详见[工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md)。
+自引用 Cordis 工具集：七个面向模型的工具，操作当前 DSH 进程中的实时运行时。注册表、vm 沙箱与浏览器广播属于 [`@deepseek-ai/dsh-cordis-host-runner`](../cordis-host-runner/README.md)（`ctx.dynamic`），本工具集注入它——只装这些工具而不装 runner 的组合永远不会激活它们。沙箱语义、动态包生命周期与组合及既定决策详见[工具集 Agent Note](../../../.agents/notes/implemented/feature/2026-07-08-self-referential-cordis-toolset.md)。
 
 ## 功能
 
-两组配对动词，外加只读报告。
+两组配对动词，外加只读的 inspect 工具。
 
-- `cordis_inspect`：当前进程运行时的只读报告，包括服务、全部存活插件 fiber、已注册工具、本会话的动态包、反射支持的 `api`／`events` 参考，以及浏览器半可以向其贡献 UI 的编译期 `client` 槽面。精确的 `name` 配合 `what: "api"`、`what: "events"` 或 `what: "client"` 可缩窄报告，并附上完整约定。
+- `cordis_inspect_list`：列出 host 当前已知的每个 Inspect Provider——本地 host 提供方，加上从客户端同步来的最新 manifest（元数据清单）——每项含其平台、用途、只读方法与输入／输出 schema；其结果提供 `cordis_inspect_query` 所要求的确切提供方与方法名。
+- `cordis_inspect_query`：运行一条 Inspect Provider 显式声明的只读查询，用列表返回的确切 `platform`／`provider`／`method` 寻址，`input` 须满足该方法的 schema。host 查询在本地运行；客户端查询等待第一个有效的页面响应，在页面应答或调用被取消之前保持挂起。
+- `cordis_inspect_self`：按由浅入深的粒度查看本会话自己的动态插件：不带 id 时只列插件摘要，仅给 `pluginId` 时追加版本指针、最近一次运行和每个包的摘要，`pluginId` 加 `packageId` 时返回该不可变包的 host／客户端源码与运行时诊断。
 - `cordis_define`：在语法预检两个半之后登记一个包（`name`、`purpose`，以及 host 半 `code` 和／或浏览器半 `client`）。此时不运行任何东西；用户会在会话里看到它的卡片和一个启动控件。铸出的 `dyn-<n>` 标识同时进入结果 value **与**持久的呈现元数据，卡片正是靠后者在 replay 中寻址运行动词。
 - `cordis_run`：在沙箱中求值 host 半，并把浏览器半投递给每个打开的网页。对已在运行的包再次运行不会失败，而是重新投递当前版本——这正是被刷新过的页面把包取回来的方式。
 - `cordis_stop`：把 host 半 dispose 到完全停稳，并从各页面撤回浏览器半；定义存续，可以再次运行。
@@ -59,7 +61,7 @@ Namespace 插件：命名导出 `name`／`inject`／`apply`，无默认导出（
 
 #### 模型看到的内容
 
-该插件可见时，会话模型会看到生成的 [`cordis_inspect`、`cordis_define`、`cordis_run`、`cordis_stop` 和 `cordis_undefine` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-cordis)。
+该插件可见时，会话模型会看到生成的 [`cordis_inspect_list`、`cordis_inspect_query`、`cordis_inspect_self`、`cordis_define`、`cordis_run`、`cordis_stop` 和 `cordis_undefine` schema](../../../docs/tool-catalog.md#deepseek-aidsh-tool-cordis)。
 
 #### Token 影响
 
